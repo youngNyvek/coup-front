@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+/* Se quiser usar a sintaxe padrão do Tailwind (ao invés de plugin vite) */
+@import "tailwindcss" important;
+
+
+/* Exemplo de customização com @theme */
+@theme {
+  /* Fontes */
+  --font-pixel: "Press Start 2P", cursive;
+  
+  /* Cores principais */
+  --color-surface-900: 17 24 39; /* slate-900 em oklch, rgb, etc. */
+  --color-surface-800: 31 41 55; /* slate-800 */
+  --color-text-base: 236 240 243; /* #ECEFF3 (ou use outro formato) */
+  --color-accent-teal: 20 184 166; /* teal-500 */
+  --color-accent-purple: 139 92 246; /* purple-600 */
+  --color-border: 107 114 128; /* slate-500 */
+  --color-disabled-bg: 55 65 81; /* gray-700 */
+  --color-disabled-text: 156 163 175; /* gray-400 */
+
+  /* Você também pode definir transições, breakpoints, etc. */
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@utility pixel-corners {
+  clip-path: polygon(
+    0px calc(100% - 12px),
+    3px calc(100% - 12px),
+    3px calc(100% - 6px),
+    6px calc(100% - 6px),
+    6px calc(100% - 3px),
+    12px calc(100% - 3px),
+    12px 100%,
+    calc(100% - 12px) 100%,
+    calc(100% - 12px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 12px),
+    100% calc(100% - 12px),
+    100% 12px,
+    calc(100% - 3px) 12px,
+    calc(100% - 3px) 6px,
+    calc(100% - 6px) 6px,
+    calc(100% - 6px) 3px,
+    calc(100% - 12px) 3px,
+    calc(100% - 12px) 0px,
+    12px 0px,
+    12px 3px,
+    6px 3px,
+    6px 6px,
+    3px 6px,
+    3px 12px,
+    0px 12px
+  );
+}
+
+@layer components {
+  .btn {
+    @apply pixel-corners border border-slate-500 text-slate-100 px-5 py-3 font-bold transition-colors disabled:cursor-not-allowed;
+  }
+
+  .btn--teal {
+    @apply bg-teal-600 hover:bg-teal-700 disabled:bg-gray-700;
+  }
+
+  .btn--purple {
+    @apply bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700;
+  }
+}
+
+* {
+  @apply font-pixel;
+}

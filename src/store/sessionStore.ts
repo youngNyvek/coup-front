@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as signalR from '@microsoft/signalr';
+import { ActionType } from './types/ActionTypes';
 
 interface Player {
   connectionId: string;
@@ -17,8 +18,7 @@ interface SessionState {
   createSession: () => Promise<string | undefined>;
   joinSession: (sessionCode: string) => Promise<void>;
   connectToHub: () => Promise<void>;
-  incrementCounter: () => Promise<void>;
-  decrementCounter: () => Promise<void>;
+  doAction: (actionType: ActionType, payload?: any) => Promise<void>;
 }
 
 
@@ -84,8 +84,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   // Entra em uma sessão existente
-  joinSession: async (sessionCode: string) => {
-    const { connection, nickname } = get();
+  joinSession: async (sessionCodeParam: string) => {
+    const { connection, nickname, sessionCode } = get();
 
     if (!connection) {
       console.error('Conexão com o SignalR Hub não estabelecida');
@@ -93,36 +93,23 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
 
     try {
-      
+      await connection.invoke('JoinSession', sessionCodeParam, nickname);
 
-      await connection.invoke('JoinSession', sessionCode, nickname);
+      if(!sessionCode){
+        set({ sessionCode: sessionCodeParam })
+      }
     } catch (error) {
       console.error('Erro ao entrar na sessão:', error);
     }
   },
 
-  
-
-  // Incrementa o contador
-  incrementCounter: async () => {
+  doAction: async (actionType: ActionType, payload?: any) => {
     const { connection, sessionCode } = get();
     if (connection && sessionCode) {
       try {
-        await connection.invoke('IncrementCounter', sessionCode);
+        await connection.invoke("ExecuteAction", sessionCode, actionType, payload);
       } catch (error) {
         console.error('Erro ao incrementar o contador:', error);
-      }
-    }
-  },
-
-  // Decrementa o contador
-  decrementCounter: async () => {
-    const { connection, sessionCode } = get();
-    if (connection && sessionCode) {
-      try {
-        await connection.invoke('DecrementCounter', sessionCode);
-      } catch (error) {
-        console.error('Erro ao decrementar o contador:', error);
       }
     }
   },

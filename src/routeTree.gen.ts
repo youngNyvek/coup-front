@@ -13,7 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as JoinSessionImport } from './routes/join-session'
 import { Route as IndexImport } from './routes/index'
-import { Route as MatchRoomSessionCodeImport } from './routes/match-room/$sessionCode'
+import { Route as MatchRoomIndexImport } from './routes/match-room/index'
 
 // Create/Update Routes
 
@@ -29,9 +29,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const MatchRoomSessionCodeRoute = MatchRoomSessionCodeImport.update({
-  id: '/match-room/$sessionCode',
-  path: '/match-room/$sessionCode',
+const MatchRoomIndexRoute = MatchRoomIndexImport.update({
+  id: '/match-room/',
+  path: '/match-room/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,11 +53,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinSessionImport
       parentRoute: typeof rootRoute
     }
-    '/match-room/$sessionCode': {
-      id: '/match-room/$sessionCode'
-      path: '/match-room/$sessionCode'
-      fullPath: '/match-room/$sessionCode'
-      preLoaderRoute: typeof MatchRoomSessionCodeImport
+    '/match-room/': {
+      id: '/match-room/'
+      path: '/match-room'
+      fullPath: '/match-room'
+      preLoaderRoute: typeof MatchRoomIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -68,41 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/join-session': typeof JoinSessionRoute
-  '/match-room/$sessionCode': typeof MatchRoomSessionCodeRoute
+  '/match-room': typeof MatchRoomIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join-session': typeof JoinSessionRoute
-  '/match-room/$sessionCode': typeof MatchRoomSessionCodeRoute
+  '/match-room': typeof MatchRoomIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/join-session': typeof JoinSessionRoute
-  '/match-room/$sessionCode': typeof MatchRoomSessionCodeRoute
+  '/match-room/': typeof MatchRoomIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/join-session' | '/match-room/$sessionCode'
+  fullPaths: '/' | '/join-session' | '/match-room'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/join-session' | '/match-room/$sessionCode'
-  id: '__root__' | '/' | '/join-session' | '/match-room/$sessionCode'
+  to: '/' | '/join-session' | '/match-room'
+  id: '__root__' | '/' | '/join-session' | '/match-room/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   JoinSessionRoute: typeof JoinSessionRoute
-  MatchRoomSessionCodeRoute: typeof MatchRoomSessionCodeRoute
+  MatchRoomIndexRoute: typeof MatchRoomIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   JoinSessionRoute: JoinSessionRoute,
-  MatchRoomSessionCodeRoute: MatchRoomSessionCodeRoute,
+  MatchRoomIndexRoute: MatchRoomIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +117,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/join-session",
-        "/match-room/$sessionCode"
+        "/match-room/"
       ]
     },
     "/": {
@@ -126,8 +126,8 @@ export const routeTree = rootRoute
     "/join-session": {
       "filePath": "join-session.tsx"
     },
-    "/match-room/$sessionCode": {
-      "filePath": "match-room/$sessionCode.tsx"
+    "/match-room/": {
+      "filePath": "match-room/index.tsx"
     }
   }
 }
