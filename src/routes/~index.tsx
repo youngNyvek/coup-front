@@ -29,7 +29,7 @@ function HomePage() {
 
     if (sessionCode) {
       await joinSession(sessionCode); // Entra na sessão
-      navigate({ to: '/match-room' });
+      navigate({ to: '/lobby' });
     }
   };
 
@@ -37,7 +37,7 @@ function HomePage() {
     <div
       className="flex flex-col gap-8 items-center justify-center min-h-screen bg-slate-900 text-slate-100 pixel-font p-8 relative"
     >
-      <h1 className="text-2xl md:text-3xl border-4 border-slate-500 p-6 bg-slate-800 shadow-md">
+      <h1 className="text-2xl md:text-3xl border-2 border-slate-500 p-6 bg-slate-800 shadow-md">
         Bem-vindo ao Coup Game
       </h1>
 
@@ -46,7 +46,7 @@ function HomePage() {
         placeholder="Digite seu nickname"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        className="border-4 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-teal-500"
+        className="border-2 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-teal-500"
       />
 
       <div className="flex gap-8">

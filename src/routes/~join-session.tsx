@@ -24,12 +24,12 @@ function RouteComponent() {
     await connectToHub(); // Conecta ao SignalR Hub
     await joinSession(sessionCode); // Entra na sessão usando o código do path
 
-    navigate({ to: '/match-room' });
+    navigate({ to: '/lobby' });
   };
 
   return (
     <div className="flex flex-col gap-8 items-center justify-center min-h-screen bg-slate-900 text-slate-100 pixel-font p-8 relative">
-      <h1 className="text-4xl md:text-5xl border-4 border-slate-500 p-6 bg-slate-800 shadow-md">
+      <h1 className="text-4xl md:text-5xl border-2 border-slate-500 p-6 bg-slate-800 shadow-md">
         Entrar em uma Sessão
       </h1>
 
@@ -38,7 +38,7 @@ function RouteComponent() {
         placeholder="Digite seu nickname"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        className="border-4 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-teal-500"
+        className="border-2 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-teal-500"
       />
 
       <input
@@ -46,7 +46,7 @@ function RouteComponent() {
         placeholder="Código da sessão"
         value={sessionCode}
         onChange={(e) => setSessionCode(e.target.value)}
-        className="border-4 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-purple-500"
+        className="border-2 border-slate-500 bg-slate-800 text-slate-100 p-4 w-80 text-center focus:outline-none focus:border-purple-500"
       />
 
       <button

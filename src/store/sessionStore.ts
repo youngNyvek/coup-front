@@ -1,26 +1,29 @@
 import { create } from 'zustand';
 import * as signalR from '@microsoft/signalr';
-import { ActionType } from './types/ActionTypes';
+import { GamePhaseEnum } from '../enums/GamePhaseEnum';
+import { useNavigate } from '@tanstack/react-router';
+import { IPlayer } from './interfaces/IPlayer';
+import { ICard } from './interfaces/ICard';
+import { IGamePhase } from './interfaces/IGamePhase';
 
-interface Player {
-  connectionId: string;
-  nickname: string;
-}
+
+
 
 interface SessionState {
   nickname: string;
   sessionCode: string | null;
-  counter: number;
-  players: Player[];
   connection: signalR.HubConnection | null;
+  
+  deckPlayer: ICard[];
+  players: IPlayer[];
+  gamePhase: IGamePhase | null;
 
   setNickname: (nickname: string) => void;
   createSession: () => Promise<string | undefined>;
   joinSession: (sessionCode: string) => Promise<void>;
   connectToHub: () => Promise<void>;
-  doAction: (actionType: ActionType, payload?: any) => Promise<void>;
+  doAction: (actionType: string, payload?: any) => Promise<void>;
 }
-
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   nickname: '',
@@ -28,9 +31,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   counter: 0,
   players: [],
   connection: null,
-
   setNickname: (nickname) => set({ nickname }),
-
+  gamePhase: null,
+  deckPlayer: [],
 
   // Conecta ao SignalR Hub e entra na sessão
   connectToHub: async () => {
@@ -42,15 +45,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     try {
       await connection.start();
 
-      connection.on('UpdatePlayers', (players: Player[]) => {
-        console.log('Lista de jogadores atualizada:', players);
+      connection.on('UpdatePlayers', (players: IPlayer[]) => {
         set({ players });
       });
 
-      // Ouve atualizações do contador
-      connection.on('UpdateCounter', (newCounter: number) => {
-        console.log('Novo contador recebido:', newCounter);
-        set({ counter: newCounter });
+      connection.on('StartGame', (newPlayerDeck: ICard[]) => {
+        set({ deckPlayer: newPlayerDeck});
       });
 
       console.log('Conectado ao SignalR Hub');
@@ -103,7 +103,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
-  doAction: async (actionType: ActionType, payload?: any) => {
+  doAction: async (actionType: string, payload?: any) => {
     const { connection, sessionCode } = get();
     if (connection && sessionCode) {
       try {
