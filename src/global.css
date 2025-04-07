@@ -25,7 +25,7 @@
 
 @layer components {
   .btn {
-    @apply rounded-sm text-slate-100 px-2 py-1 disabled:cursor-not-allowed;
+    @apply rounded-sm text-slate-100 px-2 py-1 cursor-pointer disabled:cursor-not-allowed;
   }
 
   .btn--teal {

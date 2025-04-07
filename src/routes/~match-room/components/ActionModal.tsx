@@ -1,8 +1,10 @@
 import { useModalStore } from "../../../store/modalStore";
+import { useSessionStore } from "../../../store/sessionStore";
 import { getRoleColor } from "../../../utils/getRoleColor";
 
 export default function ActionModal() {
-  const { isOpen, position, actions, onSelect, closeModal } = useModalStore();
+  const { isOpen, position, actions, closeModal } = useModalStore();
+  const { declareAction } = useSessionStore(); // Obtém o estado do jogo
 
   if (!isOpen) return null;
 
@@ -20,9 +22,9 @@ export default function ActionModal() {
       <div className="flex mt-2 gap-1">
         {actions.map((action) => (
           <button
-            key={action.name}
+            key={action.key}
             onClick={() => {
-              if (onSelect) onSelect(action);
+              declareAction(action.key);
               closeModal();
             }}
             className={`btn text-xs ${getRoleColor(action.role)}`}

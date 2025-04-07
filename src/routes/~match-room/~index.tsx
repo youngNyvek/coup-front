@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSessionStore } from "../../store/sessionStore";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { MyPlayerCard } from "./components/MyPlayerCard";
 import { CentralBank } from "./components/CentralBank";
 import ActionModal, { ActionModalContainedOverlay } from "./components/ActionModal";
 import { OtherPlayersCard } from "./components/OtherPlayersCard";
+import { useNotificationStore } from "../../store/notificationStore";
+import { CharacterActionEnum } from "../../enums/ActionsEnums/CharacterActionEnum";
+import { CounterActionEnum } from "../../enums/ActionsEnums/CounterActionEnum";
+import { GeneralActionsEnum } from "../../enums/ActionsEnums/GeneralActionsEnum";
+import { ActionsEnumBase } from "../../enums/ActionsEnums/base";
+import NotificationPopup from "./components/NotificationPopup";
 import { useModalStore } from "../../store/modalStore";
 
 export const Route = createFileRoute("/match-room/")({
@@ -12,12 +18,9 @@ export const Route = createFileRoute("/match-room/")({
 });
 
 function MatchRoomPage() {
-  const { doAction, players: playersStore, deckPlayer, connection } = useSessionStore();
+  const { players: playersStore, deckPlayer, connection } = useSessionStore();
+  const { openModal } = useNotificationStore();
   const { closeModal } = useModalStore();
-
-  // Exemplo de saldo do banco central
-  const bankBalance = 50;
-
   const { myPlayer, otherPlayers } = useMemo(() => {
     let myPlayer = null;
     let otherPlayers = [];
@@ -32,6 +35,34 @@ function MatchRoomPage() {
 
     return { myPlayer, otherPlayers }
   }, [playersStore]);
+
+  useEffect(() => {
+    if(!connection) return;
+
+    connection.on("Notify", ({ type, actionEntity }) => {
+      if (type === "ActionDeclared") {
+        const actions = new Map<string, ActionsEnumBase>([
+          ...CharacterActionEnum.map,
+          ...CounterActionEnum.map,
+          ...GeneralActionsEnum.map,
+        ]);
+        
+        const actorPlayerName = playersStore.find(p => p.connectionId === actionEntity.actorPlayerId)?.nickname;
+        const targetPlayerName = playersStore.find(p => p.connectionId === actionEntity.targetPlayerId)?.nickname;
+        const friendlyActionName = actions.get(actionEntity.actionName)?.displayName;
+
+        let message = `${actorPlayerName} declarou: "${friendlyActionName}"`;
+
+        if(targetPlayerName)
+          message += ` | contra: ${targetPlayerName}`;
+
+        openModal(message, actionEntity.counterActionChoices, actionEntity.canBeChallenged);
+        closeModal();
+      }
+    });
+
+    return () => connection.off("Notify");
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-slate-100 pixel-font relative">
@@ -59,7 +90,7 @@ function MatchRoomPage() {
                     .map(player => <OtherPlayersCard player={player} />)
                 }
               </div>
-              <CentralBank bankBalance={bankBalance} />
+              <CentralBank />
               <div className="p-2 absolute right-0 h-full flex justify-evenly flex-col">
                 {
                   otherPlayers
@@ -74,6 +105,7 @@ function MatchRoomPage() {
         <MyPlayerCard myPlayer={myPlayer} deckPlayer={deckPlayer} />
       </div>
       <ActionModal />
+      <NotificationPopup/>
     </div>
   );
 }

@@ -5,9 +5,9 @@ interface ModalStore {
   isOpen: boolean;
   position: { x: number; y: number };
   actions: ActionsEnumBase[];
-  onSelect: ((action: ActionsEnumBase) => void) | null;
+  targetPlayerId?: string;
 
-  openModal: (x: number, y: number, actions: ActionsEnumBase[], onSelect: (action: ActionsEnumBase) => void) => void;
+  openModal: (x: number, y: number, actions: ActionsEnumBase[], targetPlayerId?: string) => void;
   closeModal: () => void;
 }
 
@@ -17,8 +17,8 @@ export const useModalStore = create<ModalStore>((set) => ({
   actions: [],
   onSelect: null,
 
-  openModal: (x, y, actions, onSelect) => 
-    set({ isOpen: true, position: { x, y }, actions, onSelect }),
+  openModal: (x, y, actions, targetPlayerId) => 
+    set({ isOpen: true, position: { x, y }, actions, targetPlayerId }),
 
   closeModal: () => set({ isOpen: false }),
 }));

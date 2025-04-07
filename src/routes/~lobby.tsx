@@ -26,8 +26,17 @@ function RouteComponent() {
     if (!connection) return;
     
     await connection.invoke("StartGame", sessionCode);
-    navigate({to: "/match-room"});
   };
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const gameStartedMethod = "GameStarted";
+
+    connection.on(gameStartedMethod, () => navigate({to: "/match-room"}));
+
+    return () => connection.off(gameStartedMethod);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white">

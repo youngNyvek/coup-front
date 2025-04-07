@@ -1,13 +1,8 @@
 import { create } from 'zustand';
 import * as signalR from '@microsoft/signalr';
-import { GamePhaseEnum } from '../enums/GamePhaseEnum';
-import { useNavigate } from '@tanstack/react-router';
 import { IPlayer } from './interfaces/IPlayer';
 import { ICard } from './interfaces/ICard';
 import { IGamePhase } from './interfaces/IGamePhase';
-
-
-
 
 interface SessionState {
   nickname: string;
@@ -17,12 +12,14 @@ interface SessionState {
   deckPlayer: ICard[];
   players: IPlayer[];
   gamePhase: IGamePhase | null;
+  isPlayerTurn: boolean;
 
   setNickname: (nickname: string) => void;
   createSession: () => Promise<string | undefined>;
   joinSession: (sessionCode: string) => Promise<void>;
   connectToHub: () => Promise<void>;
-  doAction: (actionType: string, payload?: any) => Promise<void>;
+  declareAction: (actionType: string, payload?: any) => Promise<void>;
+  declareChallenge: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -34,6 +31,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   setNickname: (nickname) => set({ nickname }),
   gamePhase: null,
   deckPlayer: [],
+  isPlayerTurn: false,
 
   // Conecta ao SignalR Hub e entra na sessão
   connectToHub: async () => {
@@ -49,7 +47,15 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         set({ players });
       });
 
-      connection.on('StartGame', (newPlayerDeck: ICard[]) => {
+      connection.on('UpdateGamePhase', (gamePhase: IGamePhase) => {
+        set({ gamePhase });
+      });
+
+      connection.on('UpdateSession', ({gamePhase, players}: { players: IPlayer[], gamePhase: IGamePhase }) => {
+        set({ gamePhase, players });
+      });
+
+      connection.on('UpdateDeck', (newPlayerDeck: ICard[]) => {
         set({ deckPlayer: newPlayerDeck});
       });
 
@@ -103,11 +109,22 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
-  doAction: async (actionType: string, payload?: any) => {
+  declareAction: async (actionType: string, targetId?: string) => {
     const { connection, sessionCode } = get();
     if (connection && sessionCode) {
       try {
-        await connection.invoke("ExecuteAction", sessionCode, actionType, payload);
+        await connection.invoke("DeclareAction", sessionCode, actionType, targetId);
+      } catch (error) {
+        console.error('Erro ao incrementar o contador:', error);
+      }
+    }
+  },
+
+  declareChallenge: async () => {
+    const { connection, sessionCode } = get();
+    if (connection && sessionCode) {
+      try {
+        await connection.invoke("DeclareChallenge", sessionCode);
       } catch (error) {
         console.error('Erro ao incrementar o contador:', error);
       }
