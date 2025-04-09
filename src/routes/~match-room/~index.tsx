@@ -5,13 +5,8 @@ import { MyPlayerCard } from "./components/MyPlayerCard";
 import { CentralBank } from "./components/CentralBank";
 import ActionModal, { ActionModalContainedOverlay } from "./components/ActionModal";
 import { OtherPlayersCard } from "./components/OtherPlayersCard";
-import { useNotificationStore } from "../../store/notificationStore";
-import { CharacterActionEnum } from "../../enums/ActionsEnums/CharacterActionEnum";
-import { CounterActionEnum } from "../../enums/ActionsEnums/CounterActionEnum";
-import { GeneralActionsEnum } from "../../enums/ActionsEnums/GeneralActionsEnum";
-import { ActionsEnumBase } from "../../enums/ActionsEnums/base";
 import NotificationPopup from "./components/NotificationPopup";
-import { useModalStore } from "../../store/modalStore";
+import { useNotificationListener } from "./hooks/useNotificationListener";
 
 export const Route = createFileRoute("/match-room/")({
   component: MatchRoomPage,
@@ -19,8 +14,6 @@ export const Route = createFileRoute("/match-room/")({
 
 function MatchRoomPage() {
   const { players: playersStore, deckPlayer, connection } = useSessionStore();
-  const { openModal } = useNotificationStore();
-  const { closeModal } = useModalStore();
   const { myPlayer, otherPlayers } = useMemo(() => {
     let myPlayer = null;
     let otherPlayers = [];
@@ -36,32 +29,15 @@ function MatchRoomPage() {
     return { myPlayer, otherPlayers }
   }, [playersStore]);
 
+  const listenNotification = useNotificationListener();
+
   useEffect(() => {
     if(!connection) return;
+    connection.on("Notify", listenNotification);
 
-    connection.on("Notify", ({ type, actionEntity }) => {
-      if (type === "ActionDeclared") {
-        const actions = new Map<string, ActionsEnumBase>([
-          ...CharacterActionEnum.map,
-          ...CounterActionEnum.map,
-          ...GeneralActionsEnum.map,
-        ]);
-        
-        const actorPlayerName = playersStore.find(p => p.connectionId === actionEntity.actorPlayerId)?.nickname;
-        const targetPlayerName = playersStore.find(p => p.connectionId === actionEntity.targetPlayerId)?.nickname;
-        const friendlyActionName = actions.get(actionEntity.actionName)?.displayName;
-
-        let message = `${actorPlayerName} declarou: "${friendlyActionName}"`;
-
-        if(targetPlayerName)
-          message += ` | contra: ${targetPlayerName}`;
-
-        openModal(message, actionEntity.counterActionChoices, actionEntity.canBeChallenged);
-        closeModal();
-      }
-    });
-
-    return () => connection.off("Notify");
+    return () => {
+      connection.off("Notify");
+    };
   }, []);
 
   return (
@@ -71,8 +47,8 @@ function MatchRoomPage() {
         Sala de Partida
       </h1>
       {/* Container 3D */}
-      <div className="[transform-style:preserve-3d] perspective-[1000px] relative flex-1 overflow-hidden flex flex-col items-center justify-center mb-8">
-        <div className="transform-[rotatex(45deg)] flex items-center justify-center ">
+      <div className="relative flex-1 overflow-hidden flex flex-col items-center justify-center mb-8">
+        <div className="flex items-center justify-center ">
           {/* Tabuleiro inclinado */}
           <div className=" flex-col mb-40 relative w-[800px] h-[500px] bg-slate-800 border-4 border-slate-500 rounded-md flex items-center justify-center">
             <div className="z-1 p-2 absolute top-0">

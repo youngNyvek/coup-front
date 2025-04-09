@@ -24,8 +24,8 @@ export default function ActionModal() {
           <button
             key={action.key}
             onClick={() => {
-              declareAction(action.key);
               closeModal();
+              declareAction(action.key);
             }}
             className={`btn text-xs ${getRoleColor(action.role)}`}
           >

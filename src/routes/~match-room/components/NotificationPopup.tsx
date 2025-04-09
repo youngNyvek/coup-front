@@ -6,23 +6,23 @@ export default function NotificationPopup() {
   const { isOpen, message, availableActions, closeModal, canBeChallenged } = useNotificationStore();
   const { declareAction, declareChallenge } = useSessionStore(); // Obtém o estado do jogo
 
-  // if(!isOpen) return;
+  if(!isOpen) return;
 
   return (
-    <div className="absolute w-full flex justify-center">
+    <div className="absolute w-full flex justify-center z-50">
       <div
         id="global-action-modal"
         className="mt-32 bg-slate-800 border border-slate-500 p-2 rounded-md shadow-lg text-white"
       >
-        <h3 className="text-xs text-center">AÇÃO DECLARADA!</h3>
+        <h3 className="text-xs text-center">AÇÃO DECLARADA</h3>
         <p className="mt-5">{message}</p>
         <div className="flex mt-5 gap-1 justify-center">
           {availableActions.map((action) => (
             <button
               key={action.key}
               onClick={() => {
-                declareAction(action.key)
-                  .then(closeModal);
+                closeModal();
+                declareAction(action.key);
               }}
               className={`btn text-xs ${getRoleColor(action.role)}`}
             >
@@ -32,8 +32,8 @@ export default function NotificationPopup() {
           {canBeChallenged && (
             <button
               onClick={() => {
-                declareChallenge()
-                  .then(closeModal);
+                closeModal();
+                declareChallenge();
               }}
               className="btn btn--purple text-xs"
             >

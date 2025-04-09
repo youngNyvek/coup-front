@@ -3,6 +3,7 @@ import { CounterActionEnum } from "../../enums/ActionsEnums/CounterActionEnum";
 export interface IActionEntity {
   actionName: string;
   actorPlayerId: string;
+  canBeChallenged: boolean;
 }
 
 export interface ICurrentActionEntity extends IActionEntity {
@@ -13,5 +14,5 @@ export interface ICurrentActionEntity extends IActionEntity {
 export interface IGamePhase {
   currentAction: ICurrentActionEntity;
   counterAction?: IActionEntity;
-  IsActionChallenged: boolean;
+  challenge: IActionEntity;
 }

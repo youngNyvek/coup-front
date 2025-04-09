@@ -14,17 +14,15 @@ export function OtherPlayersCard({ player }: { player: any }) {
   const { openModal } = useModalStore();
 
   // Sessão e turno
-  const { gamePhase, connection } = useSessionStore();
-  
-  const isCurrentTurn = gamePhase?.currentAction.actorPlayerId === connection?.connectionId;
+  const { isPlayerTurn } = useSessionStore();
 
   return (
     <div
       className={`relative w-32 h-32 bg-slate-700 flex flex-col items-center justify-center
-        border-2 ${isCurrentTurn ? "border-yellow-500 cursor-pointer" : "border-slate-500 cursor-default"}
+        border-2 ${isPlayerTurn ? "border-yellow-500 cursor-pointer" : "border-slate-500 cursor-default"}
       `}
       onClick={(e) => {
-        if (isCurrentTurn) {
+        if (isPlayerTurn) {
           openModal(e.clientX, e.clientY, playerActions, player.connectionId);;
         }
       }}

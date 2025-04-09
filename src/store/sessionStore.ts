@@ -13,6 +13,7 @@ interface SessionState {
   players: IPlayer[];
   gamePhase: IGamePhase | null;
   isPlayerTurn: boolean;
+  isChallenged: boolean;
 
   setNickname: (nickname: string) => void;
   createSession: () => Promise<string | undefined>;
@@ -32,6 +33,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   gamePhase: null,
   deckPlayer: [],
   isPlayerTurn: false,
+  isChallenged: false,
 
   // Conecta ao SignalR Hub e entra na sessão
   connectToHub: async () => {
@@ -47,12 +49,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         set({ players });
       });
 
-      connection.on('UpdateGamePhase', (gamePhase: IGamePhase) => {
-        set({ gamePhase });
-      });
-
       connection.on('UpdateSession', ({gamePhase, players}: { players: IPlayer[], gamePhase: IGamePhase }) => {
-        set({ gamePhase, players });
+        const { connection }  = get();
+        const isPlayerTurn = gamePhase?.currentAction.actorPlayerId === connection?.connectionId;
+
+        set({ gamePhase, players, isPlayerTurn });
       });
 
       connection.on('UpdateDeck', (newPlayerDeck: ICard[]) => {
